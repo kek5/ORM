@@ -19,6 +19,14 @@ public class Main {
 
         Entity.setDatabase(connection);
 
+        Tag a = new Tag(1);
+        for (Post post: a.getPosts()) {
+            post.printMap();
+        }
+
+
+
+
 
 
     }

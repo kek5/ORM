@@ -19,11 +19,11 @@ class Section extends Entity {
     public void setTitle(String value) {
         super.setColumn("title", value);
     }
-//
-//    public List<Category> getCategories() {
-//        return super.getChildren(Category.class);
-//    }
-//
+
+    public List<Category> getCategories() {
+        return super.getChildren(Category.class);
+    }
+
     public static List<Section> all() {
         return Entity.all(Section.class);
     }

@@ -20,30 +20,30 @@ class Comment extends Entity {
         super.setColumn("text", value);
     }
 
-//    public Post getPost() {
-//        return super.getParent(Post.class);
-//    }
-//
-//    public void setPost(Integer id) {
-//        super.setParent("post", id);
-//    }
-//
-//    public void setPost(Post post) {
-//        super.setParent("post", post.getId());
-//    }
-//
-//    public User getUser() {
-//        return super.getParent(User.class);
-//    }
-//
-//    public void setUser(Integer id) {
-//        super.setParent("user", id);
-//    }
-//
-//    public void setUser(User user) {
-//        super.setParent("user", user.getId());
-//    }
-//
+    public Post getPost() {
+        return super.getParent(Post.class);
+    }
+
+    public void setPost(Integer id) {
+        super.setParent("post", id);
+    }
+
+    public void setPost(Post post) {
+        super.setParent("post", post.getId());
+    }
+
+    public User getUser() {
+        return super.getParent(User.class);
+    }
+
+    public void setUser(Integer id) {
+        super.setParent("user", id);
+    }
+
+    public void setUser(User user) {
+        super.setParent("user", user.getId());
+    }
+
     public static List<Comment> all() {
         return Entity.all(Comment.class);
     }

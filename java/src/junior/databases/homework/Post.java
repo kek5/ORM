@@ -20,9 +20,9 @@ class Post extends Entity {
         return (String) super.getColumn("content");
     }
 
-//    public Category getCategory() {
-//        return super.getParent(Category.class);
-//    }
+    public Category getCategory() {
+        return super.getParent(Category.class);
+    }
 
     public void setTitle(String value) {
         super.setColumn("title", value);
@@ -32,22 +32,22 @@ class Post extends Entity {
         super.setColumn("content", value);
     }
 
-//    public void setCategory(Integer value) {
-//        super.setParent("category", value);
-//    }
-//
-//    public void setCategory(Entity value) {
-//        super.setParent("category", value.getId());
-//    }
-//
-//    public List<Tag> getTags() {
-//        return super.getSiblings(Tag.class);
-//    }
-//
-//    public List<Comment> getComments() {
-//        return super.getChildren(Comment.class);
-//    }
-//
+    public void setCategory(Integer value) {
+        super.setParent("category", value);
+    }
+
+    public void setCategory(Entity value) {
+        super.setParent("category", value.getId());
+    }
+
+    public List<Tag> getTags() {
+        return super.getSiblings(Tag.class);
+    }
+
+    public List<Comment> getComments() {
+        return super.getChildren(Comment.class);
+    }
+
     public static List<Post> all() {
         return Entity.all(Post.class);
     }

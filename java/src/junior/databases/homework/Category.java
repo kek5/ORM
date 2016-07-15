@@ -20,17 +20,17 @@ class Category extends Entity {
         super.setColumn("title", value);
     }
 //
-//    public Section getSection() {
-//        return super.getParent(Section.class);
-//    }
+    public Section getSection() {
+        return super.getParent(Section.class);
+    }
 //
-//    public void setSection(Integer id) {
-//        super.setParent("section", id);
-//    }
+    public void setSection(Integer id) {
+        super.setParent("section", id);
+    }
 //
-//    public void setSection(Section section) {
-//        super.setParent("section", section.getId());
-//    }
+    public void setSection(Section section) {
+        super.setParent("section", section.getId());
+    }
 //
 //    public List<Post> getPosts() {
 //        return super.getChildren(Post.class);
