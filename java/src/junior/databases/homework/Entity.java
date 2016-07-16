@@ -41,15 +41,26 @@ public abstract class Entity {
     }
 
     // my methods
-    public void setTableName(String tableName) {
+    public final void setTableName(String tableName) {
         this.table = tableName;
     }
-    public void printMap() {
+    public final void printMap() {
         String key = "";
         for (int i = 0; i < this.fields.size(); i++) {
             key = this.fields.keySet().toArray()[i].toString();
             System.out.print(key + "+++");
             System.out.println(this.fields.get(key));
+        }
+    }
+    private final ResultSet children_siblings_getResultSet(String statement) {
+        try {
+            PreparedStatement query = Entity.db.prepareStatement(statement);
+            query.setInt(1, (int)this.fields.get(this.table + "_id"));
+            ResultSet result = query.executeQuery();
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
     // the end
@@ -113,19 +124,9 @@ public abstract class Entity {
         // convert each row from ResultSet to instance of class T with appropriate id
         // fill each of new instances with column data
         // return list of children instances
-        PreparedStatement query;
         String classTableName = cls.getSimpleName().toLowerCase();
         String statement = String.format(Entity.CHILDREN_QUERY, classTableName, this.table);
-        try {
-            query = Entity.db.prepareStatement(statement);
-            query.setInt(1, (int)this.fields.get(this.table + "_id"));
-            ResultSet result = query.executeQuery();
-            return Entity.rowsToEntities(cls, result);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return Entity.rowsToEntities(cls, this.children_siblings_getResultSet(statement));
     }
 
     public final <T extends Entity> List<T> getSiblings(Class<T> cls) {
@@ -133,18 +134,10 @@ public abstract class Entity {
         // convert each row from ResultSet to instance of class T with appropriate id
         // fill each of new instances with column data
         // return list of sibling instances
-        PreparedStatement query;
         String classTableName = cls.getSimpleName().toLowerCase();
         String statement = String.format(Entity.SIBLINGS_QUERY, Entity.getJoinTableName(this.table, classTableName), classTableName, this.table);
-        try {
-            query = Entity.db.prepareStatement(statement);
-            query.setInt(1, (int)this.fields.get(this.table + "_id"));
-            ResultSet result = query.executeQuery();
-            return Entity.rowsToEntities(cls, result);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+
+        return Entity.rowsToEntities(cls, this.children_siblings_getResultSet(statement));
     }
 
 
@@ -200,6 +193,7 @@ public abstract class Entity {
         result.next();
         this.id = result.getInt(1);
     }
+
     private void update() throws SQLException {
         if(this.isLoaded) {
             if(this.isModified) {
@@ -224,6 +218,7 @@ public abstract class Entity {
         System.out.println("Your entity is not loaded.");
 
     }
+
     public final void delete() throws SQLException { // No results were returned Exception if executeQuery()
         String statement = String.format(Entity.DELETE_QUERY, this.table);
         PreparedStatement query = Entity.db.prepareStatement(statement);
@@ -232,6 +227,7 @@ public abstract class Entity {
         this.isLoaded = false;
         this.isModified = false;
     }
+
     public final void save() throws SQLException {
         if(this.id == 0) {
             this.insert();
@@ -279,6 +275,7 @@ public abstract class Entity {
         // each "?" is used in insert statements as a placeholder for values (google prepared statements)
         return Entity.genPlaceholders(size, "?");
     }
+
     private static Collection<String> genPlaceholders(int size, String placeholder) {
         // return a string, consisting of <size> <placeholder> symbols, joined with ", "
         // each <placeholder> is used in insert statements as a placeholder for values (google prepared statements)
@@ -287,6 +284,7 @@ public abstract class Entity {
         temp.add(1, placeholder);
         return new ArrayList<>(Arrays.asList(Entity.join(temp)));
     }
+
     private static String getJoinTableName(String leftTable, String rightTable) {
         // generate the name of associative table for many-to-many relation
         // sort left and right tables alphabetically
@@ -296,6 +294,7 @@ public abstract class Entity {
         }
         return rightTable + "__" + leftTable;
     }
+
     private java.util.Date getDate(String column) {
         String dateString;
         java.util.Date date = null;
@@ -320,9 +319,11 @@ public abstract class Entity {
 
         return date;
     }
+
     private static String join(Collection<String> sequence) {
         return Entity.join(sequence, ", ");
     }
+
     private static String join(Collection<String> sequence, String glue) {
         // join collection of strings with glue and return a joined string
         int last = Integer.parseInt((String)sequence.toArray()[0]) - 1;
@@ -334,22 +335,22 @@ public abstract class Entity {
 
         return temp;
     }
+
     private static <T extends Entity> List<T> rowsToEntities(Class<T> cls, ResultSet result) {
         // convert a ResultSet of database rows to list of instances of corresponding class
         // each instance must be filled with its data so that it must not produce additional queries to database to get it's fields
         String classTableName = cls.getSimpleName().toLowerCase();
-        List<T> list = new ArrayList<>();
+        List<T> list = null;
 
         try {
+            list = new ArrayList<>();
             T entity;
             Constructor<T> constructor = cls.getConstructor(Integer.class);
             while(result.next()) {
                 entity = constructor.newInstance(result.getInt(classTableName + "_id"));
                 list.add(entity);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+        } catch (SQLException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
             e.printStackTrace();
         }
 
